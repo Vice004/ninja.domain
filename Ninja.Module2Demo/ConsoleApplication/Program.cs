@@ -3,6 +3,7 @@ using NinjaDomain.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Linq;
 
 namespace ConsoleApplication
 {
@@ -17,10 +18,10 @@ namespace ConsoleApplication
             //InsertNinja();
             //InsertMultipleNinjas();
             //InsertNinjaWithEquipment();
-            //SimpleNinjaQuery();
+            //SimpleNinjaQueries();
             //SimpleNinjaGraphQuery();
             //QueryAndUpdateNinja();
-            //QueryAndUpdateNinjaDisconnected();
+            QueryAndUpdateNinjaDisconnected();
             //DeleteNinja();
             Console.ReadKey();
         }
@@ -76,6 +77,52 @@ namespace ConsoleApplication
                 context.SaveChanges();
             }
         }//InsertMultipleNinjas()
+
+        private static void SimpleNinjaQueries()
+        {
+            using (var context=new NinjaContext())
+            {
+                var ninjas = context.Ninjas.Where(n=>n.Name == "Raphael");
+                //var query = context.Ninjas;
+                //var someninjas = query.ToList();
+                foreach (var ninja in ninjas)
+                {
+                    Console.WriteLine(ninja.Name);
+                }//query
+            }
+        }//SimpleNinjaQueries()
+
+        private static void QueryAndUpdateNinja()
+        {
+            using(var context=new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                var ninja = context.Ninjas.FirstOrDefault();
+                ninja.ServedInOniwaban = (!ninja.ServedInOniwaban);
+                context.SaveChanges();
+            }//using
+        }//QueryAndUpdateNinja()
+
+        private static void QueryAndUpdateNinjaDisconnected()
+        {
+            Ninja ninja;
+            //This piece of code respresents the service or API retrieving a Ninja
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                ninja = context.Ninjas.FirstOrDefault();
+            }//using
+            ninja.ServedInOniwaban = (!ninja.ServedInOniwaban);
+
+            using(var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                context.Ninjas.Attach(ninja);
+                //checking the state
+                context.Entry(ninja).State = EntityState.Modified;
+                context.SaveChanges();
+            }//using
+        }//QueryAndUpdateNinjaDisconnected()
 
     }
 }
