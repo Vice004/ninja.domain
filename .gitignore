@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+# Project files
+*.csproj
+
 # Object files
 *.o
 *.ko
