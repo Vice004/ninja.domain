@@ -21,7 +21,9 @@ namespace ConsoleApplication
             //SimpleNinjaQueries();
             //SimpleNinjaGraphQuery();
             //QueryAndUpdateNinja();
-            QueryAndUpdateNinjaDisconnected();
+            //QueryAndUpdateNinjaDisconnected();
+            //RetrieveDataWithFind();
+            //RetrieveDataWithStoredProc();
             //DeleteNinja();
             Console.ReadKey();
         }
@@ -124,6 +126,33 @@ namespace ConsoleApplication
             }//using
         }//QueryAndUpdateNinjaDisconnected()
 
+        private static void RetrieveDataWithFind()
+        {
+            var keyval = 4;
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                var ninja = context.Ninjas.Find(keyval);
+                Console.WriteLine("After Find#1:" + ninja.Name);
+
+                var someNinja = context.Ninjas.Find(keyval);
+                Console.WriteLine("After Find#2:" + someNinja.Name);
+                ninja = null;
+            }//using
+        }//RetrieveDataWithFind()
+
+        private static void RetrieveDataWithStoredProc()
+        {
+            using (var context=new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                var ninjas = context.Ninjas.SqlQuery("exec GetOldNinjas");
+                foreach(var ninja in ninjas)
+                {
+                    Console.WriteLine(ninja.Name);
+                }//foreach
+            }//using
+        }//RetrieveDataWithStoredProc()
     }
 }
 
