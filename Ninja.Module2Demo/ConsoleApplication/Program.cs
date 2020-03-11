@@ -24,7 +24,7 @@ namespace ConsoleApplication
             //QueryAndUpdateNinjaDisconnected();
             //RetrieveDataWithFind();
             //RetrieveDataWithStoredProc();
-            //DeleteNinja();
+            DeleteNinja();
             Console.ReadKey();
         }
 
@@ -146,13 +146,35 @@ namespace ConsoleApplication
             using (var context=new NinjaContext())
             {
                 context.Database.Log = Console.WriteLine;
-                var ninjas = context.Ninjas.SqlQuery("exec GetOldNinjas");
+                var ninjas = context.Ninjas.SqlQuery("exec GetOldNinjas").ToList();
                 foreach(var ninja in ninjas)
                 {
                     Console.WriteLine(ninja.Name);
                 }//foreach
             }//using
         }//RetrieveDataWithStoredProc()
+
+        private static void DeleteNinja()
+        {
+            Ninja ninja;
+            using (var context=new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                ninja = context.Ninjas.FirstOrDefault();
+                //context.Ninjas.Remove(ninja);
+                //context.SaveChanges();
+            }
+            using (var context=new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                /* making the context aware of the ninja object(prevents the context from being seen as a new context by the EF) */
+                //context.Ninjas.Attach(ninja);
+                //context.Ninjas.Remove(ninja);
+                context.Entry(ninja).State = EntityState.Deleted;
+                context.SaveChanges();
+            }//using
+        }//Deleting a ninja from the database
+
     }
 }
 
