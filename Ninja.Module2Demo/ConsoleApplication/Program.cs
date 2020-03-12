@@ -194,7 +194,7 @@ namespace ConsoleApplication
         //Another option for deleting using a stored procedure
         private static void DeleteNinjaViaStoredProcedure()
         {
-            var keyval = 3;
+            var keyval = 4;
             using (var context =new NinjaContext())
             {
                 context.Database.Log = Console.WriteLine;
