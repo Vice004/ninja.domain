@@ -24,7 +24,9 @@ namespace ConsoleApplication
             //QueryAndUpdateNinjaDisconnected();
             //RetrieveDataWithFind();
             //RetrieveDataWithStoredProc();
-            DeleteNinja();
+            //DeleteNinja();
+            //DeleteNinjaWithKeyValue();
+            //DeleteNinjaViaStoredProcedure();
             Console.ReadKey();
         }
 
@@ -175,6 +177,31 @@ namespace ConsoleApplication
             }//using
         }//Deleting a ninja from the database
 
+        //Not that ideal sice the function makes #2 round trips to the DB
+        private static void DeleteNinjaWithKeyValue()
+        {
+            
+            var keyval = 1;
+            using (var context=new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                var ninja = context.Ninjas.Find(keyval);//DB round trip #1
+                context.Ninjas.Remove(ninja);
+                context.SaveChanges();//DB round trip #2
+            }//
+        }//DeleteNinjaWithKeyValue()
+
+        //Another option for deleting using a stored procedure
+        private static void DeleteNinjaViaStoredProcedure()
+        {
+            var keyval = 3;
+            using (var context =new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                context.Database.ExecuteSqlCommand(
+                    "exec DeleteNinjaViaId {0}", keyval);
+            }
+        }//DeleteNinjaViaStoredProcedure
     }
 }
 
