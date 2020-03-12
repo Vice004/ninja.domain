@@ -27,6 +27,8 @@ namespace ConsoleApplication
             //DeleteNinja();
             //DeleteNinjaWithKeyValue();
             //DeleteNinjaViaStoredProcedure();
+            //SimpleNinjaGraphQuery();
+            ProjectionQuery();
             Console.ReadKey();
         }
 
@@ -201,7 +203,77 @@ namespace ConsoleApplication
                 context.Database.ExecuteSqlCommand(
                     "exec DeleteNinjaViaId {0}", keyval);
             }
-        }//DeleteNinjaViaStoredProcedure
+        }//DeleteNinjaViaStoredProcedure()
+
+        private static void InsertNinjaWithEquipment()
+        {
+            using (var context = new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                //Creating a Ninja object
+                var ninja = new Ninja
+                {
+                    Name = "Kacy Catanzaro",
+                    ServedInOniwaban = false,
+                    DateOfBirth = new DateTime(1990,1,14),
+                    ClanId = 1
+                };
+                //Creating 2 Equipment objects
+                var muscles = new NinjaEquipment
+                {
+                    Name = "Muscles",
+                    Type = EquipmentType.Tool
+                };
+                var spunk = new NinjaEquipment
+                {
+                    Name = "Spunk",
+                    Type = EquipmentType.Weapon
+                };
+                //adding the Ninja to the context
+                context.Ninjas.Add(ninja);
+                //adding the Equipment objects to the Ninja object
+                ninja.EquipmentOwned.Add(muscles);
+                ninja.EquipmentOwned.Add(spunk);
+                context.SaveChanges();
+            }//using
+        }//InsertNinjaWithEquipment()
+
+        private static void SimpleNinjaGraphQuery()
+        {
+            using (var context=new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+
+                /*Eager loading - To bring all the data in advance, back from the DB in one Call
+                 *  this employs entity framework's 'DbSet.Include' method*/
+
+                /*Explicit loading allows you to retrieve specific data on the fly*/
+
+                //Eager loading example
+                //var ninja = context.Ninjas.Include(n => n.EquipmentOwned)
+                    //.FirstOrDefault(n => n.Name.StartsWith("Kacy"));
+                var ninja = context.Ninjas
+                    .FirstOrDefault(n => n.Name.StartsWith("Kacy"));
+                Console.WriteLine("Ninja Retrieved:" + ninja.Name);
+                /*Explicit loading*/
+                //context.Entry(ninja).Collection(n => n.EquipmentOwned).Load();
+                /*Lazy loading - causes extra trips to the DB when loading a data-bound column*/
+                Console.WriteLine
+                    ("Ninja Equipment Count: {0}", ninja.EquipmentOwned.Count());
+            }//using
+        }//SimpleNinjaGraphQuery()
+
+        //LINQ Projection queries return an "<Anonymous Type>"
+        private static void ProjectionQuery()
+        {
+            using(var context=new NinjaContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                var ninjas = context.Ninjas
+                    .Select(n => new { n.Name, n.DateOfBirth, n.EquipmentOwned })
+                    .ToList();
+            }//using
+        }//ProjectionQuery
     }
 }
 
